@@ -1,0 +1,494 @@
+import pandas as pd
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+print(df.head())
+
+print("\nColumns:")
+print(df.columns)
+
+print("\nPandas Data Types:")
+print(df.dtypes)
+
+def identify_measurement_type(series):
+    if series.dtype == "object":
+        return "Nominal"
+    elif pd.api.types.is_datetime64_any_dtype(series):
+        return "Interval"
+    elif pd.api.types.is_integer_dtype(series):
+        return "Ratio"
+    elif pd.api.types.is_float_dtype(series):
+        return "Ratio"
+    else:
+        return "Unknown"
+
+print("\nMeasurement Types:")
+for col in df.columns:
+    print(f"{col:25} -> {identify_measurement_type(df[col])}")
+
+(ii) 
+import pandas as pd
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+def my_label_encoder(series):
+    unique_values = sorted(series.dropna().unique())
+
+    mapping = {}
+    for i, value in enumerate(unique_values):
+        mapping[value] = i
+
+    encoded = series.map(mapping)
+
+    return encoded, mapping
+
+(iii)
+def my_one_hot_encoder(series):
+
+    unique_values = sorted(series.dropna().unique())
+
+    encoded_df = pd.DataFrame()
+
+    for value in unique_values:
+        encoded_df[f"{series.name}_{value}"] = (series == value).astype(int)
+
+    return encoded_df
+import pandas as pd
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+def my_label_encoder(series):
+    unique_values = sorted(series.dropna().unique())
+
+    mapping = {}
+    for i, value in enumerate(unique_values):
+        mapping[value] = i
+
+    encoded = series.map(mapping)
+
+    return encoded, mapping
+
+
+def my_one_hot_encoder(series):
+
+    unique_values = sorted(series.dropna().unique())
+
+    encoded_df = pd.DataFrame()
+
+    for value in unique_values:
+        encoded_df[f"{series.name}_{value}"] = (series == value).astype(int)
+
+    return encoded_df
+
+
+categorical_columns = df.select_dtypes(include=["object"]).columns
+
+print("Categorical Columns:")
+print(categorical_columns)
+
+
+label_df = df.copy()
+
+for col in categorical_columns:
+    label_df[col], mapping = my_label_encoder(label_df[col])
+    print(f"\nMapping for {col}")
+    print(mapping)
+
+print("\nShape After Label Encoding:")
+print(label_df.shape)
+
+# One Hot Encoding
+onehot_df = df.copy()
+
+for col in categorical_columns:
+
+    encoded = my_one_hot_encoder(onehot_df[col])
+
+    onehot_df = onehot_df.drop(col, axis=1)
+
+    onehot_df = pd.concat([onehot_df, encoded], axis=1)
+
+print("\nShape After One Hot Encoding:")
+print(onehot_df.shape)
+
+(iv)
+import pandas as pd
+import numpy as np
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+def minkowski_distance(x, y, p):
+
+    x = np.array(x)
+    y = np.array(y)
+
+    distance = np.sum(np.abs(x - y) ** p) ** (1 / p)
+
+    return distance
+
+vector1 = df.iloc[0].values
+vector2 = df.iloc[1].values
+
+print(minkowski_distance(vector1, vector2, 2))
+
+(v)
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+def minkowski_distance(x, y, p):
+
+    x = np.array(x)
+    y = np.array(y)
+
+    return np.sum(np.abs(x - y) ** p) ** (1 / p)
+
+vector1 = df.iloc[0].values
+vector2 = df.iloc[1].values
+
+distances = []
+
+for p in range(1, 11):
+    distances.append(minkowski_distance(vector1, vector2, p))
+
+plt.plot(range(1, 11), distances, marker="o")
+plt.title("Minkowski Distance")
+plt.xlabel("p")
+plt.ylabel("Distance")
+plt.grid(True)
+plt.show()
+
+(vi)
+
+import pandas as pd
+import numpy as np
+from scipy.spatial.distance import minkowski
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+
+def minkowski_distance(x, y, p):
+
+    x = np.array(x)
+    y = np.array(y)
+
+    return np.sum(np.abs(x - y) ** p) ** (1 / p)
+
+
+vector1 = df.iloc[0].values
+vector2 = df.iloc[1].values
+
+for p in range(1, 11):
+
+    my_distance = minkowski_distance(vector1, vector2, p)
+
+    scipy_distance = minkowski(vector1, vector2, p)
+
+    print(f"p = {p}")
+
+    print("My Function :", my_distance)
+
+    print("Scipy       :", scipy_distance)
+
+    print()
+
+(vii)
+import pandas as pd
+import numpy as np
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+def my_dot(A, B):
+
+    total = 0
+
+    for i in range(len(A)):
+        total += A[i] * B[i]
+
+    return total
+
+def my_norm(A):
+
+    total = 0
+
+    for value in A:
+        total += value ** 2
+
+    return total ** 0.5
+
+A = df.iloc[0].values
+B = df.iloc[1].values
+
+print("Own Dot Product:", my_dot(A, B))
+print("NumPy Dot Product:", np.dot(A, B))
+
+print()
+
+print("Own Norm (A):", my_norm(A))
+print("NumPy Norm (A):", np.linalg.norm(A))
+
+print()
+
+print("Own Norm (B):", my_norm(B))
+print("NumPy Norm (B):", np.linalg.norm(B))
+
+(viii)
+
+import pandas as pd
+import numpy as np
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+data = df.select_dtypes(include=np.number)
+
+def my_mean(values):
+    total = 0
+    n = len(values)
+
+    for value in values:
+        total += value
+
+    return total / n
+
+def my_variance(values):
+    mean = my_mean(values)
+
+    total = 0
+
+    for value in values:
+        total += (value - mean) ** 2
+
+    return total / len(values)
+
+def my_std(values):
+    return my_variance(values) ** 0.5
+
+
+print("Feature Statistics\n")
+
+for column in data.columns:
+
+    values = data[column].values
+
+    print(column)
+
+    print("Mean      :", my_mean(values))
+    print("Variance  :", my_variance(values))
+    print("Std Dev   :", my_std(values))
+    print()
+
+(ix)
+
+import pandas as pd
+import numpy as np
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+data = df.select_dtypes(include=np.number)
+
+def my_mean(values):
+    return sum(values) / len(values)
+
+def my_variance(values):
+    mean = my_mean(values)
+
+    total = 0
+
+    for value in values:
+        total += (value - mean) ** 2
+
+    return total / len(values)
+
+def my_std(values):
+    return my_variance(values) ** 0.5
+
+print("Comparison\n")
+
+for column in data.columns:
+
+    values = data[column].values
+
+    print(column)
+
+    print("Own Mean      :", my_mean(values))
+    print("NumPy Mean    :", np.mean(values))
+
+    print("Own Std Dev   :", my_std(values))
+    print("NumPy Std Dev :", np.std(values))
+
+    print()
+
+(x)
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+data = df.select_dtypes(include=np.number)
+
+print("Available Features:")
+print(data.columns.tolist())
+
+feature = data.columns[0]
+
+values = data[feature]
+
+print("\nSelected Feature:", feature)
+
+hist, bins = np.histogram(values, bins=10)
+
+print("\nHistogram Counts:")
+print(hist)
+
+print("\nBin Edges:")
+print(bins)
+
+plt.figure(figsize=(8,5))
+
+plt.hist(values, bins=10, edgecolor="black")
+
+plt.title(f"Histogram of {feature}")
+
+plt.xlabel(feature)
+
+plt.ylabel("Frequency")
+
+plt.grid(True)
+
+plt.show()
+
+print("Mean     :", np.mean(values))
+print("Variance :", np.var(values))
+
+(xi)
+
+import pandas as pd
+import numpy as np
+
+file = "Lab Session Data.xlsx"
+sheet = "marketing_campaign"
+
+df = pd.read_excel(file, sheet_name=sheet)
+
+for col in df.select_dtypes(include=["object"]).columns:
+    df[col] = pd.factorize(df[col])[0]
+
+data = df.select_dtypes(include=np.number).values
+
+def euclidean_distance(a, b):
+    total = 0
+
+    for i in range(len(a)):
+        total += (a[i] - b[i]) ** 2
+
+    return total ** 0.5
+
+
+# ---------- K-Means ----------
+def my_kmeans(data, k, max_iterations=100):
+
+    centroids = data[:k].copy()
+
+    for _ in range(max_iterations):
+
+        clusters = []
+
+        # Assign each point
+        for point in data:
+
+            distances = []
+
+            for centroid in centroids:
+                distances.append(euclidean_distance(point, centroid))
+
+            clusters.append(np.argmin(distances))
+
+        clusters = np.array(clusters)
+
+        new_centroids = []
+
+        # Update centroids
+        for i in range(k):
+
+            cluster_points = data[clusters == i]
+
+            if len(cluster_points) > 0:
+                new_centroids.append(cluster_points.mean(axis=0))
+            else:
+                new_centroids.append(centroids[i])
+
+        new_centroids = np.array(new_centroids)
+
+        if np.allclose(centroids, new_centroids):
+            break
+
+        centroids = new_centroids
+
+    return clusters, centroids
+
+
+# Run K-Means
+k = 3
+
+clusters, centroids = my_kmeans(data, k)
+
+print("Cluster Labels:")
+print(clusters)
+
+print("\nFinal Centroids:")
+print(centroids)
